@@ -167,3 +167,37 @@ treated here as a lead, not as evidence; it is re-measured below.
   floor. False if Valence and Approach also stay fixed.
 - Experiment: record all six modulators and the emitted epsilon and alpha
   per step.
+
+## Added after the first results
+
+Two results were not anticipated by H1-H13. Following the method, they become
+new hypotheses, committed before their experiments; nothing above is edited.
+
+**H14. With the projection's increment removed, a slower drift comes from the safety boundary.** (family 3)
+- Observation that prompted it: in the H5 configuration, Zero at 50 steps
+  still ends at Securing 0.732, and lax-distributive and contractivity
+  failures appear late in the run, though none occur in the first 20 steps.
+- Statement: the decision step keeps growing the goals, so the goal norm
+  approaches `G_MAX`; inside the boundary band, `raise_boundary_caution` adds
+  caution and the contractivity check becomes active.
+- Prediction: True if, in the H5 configuration on Zero (50 steps), boundary
+  pressure becomes greater than 0 at or before the first step where Securing
+  exceeds 0.60, **and** additionally disabling `raise_boundary_caution` (one
+  change relative to the H5 configuration) keeps Zero, Neutral and Good
+  outcomes within 0.50 ± 0.15 at 50 steps. False if boundary pressure stays 0
+  for the whole run.
+- Experiment: record the goal norm and boundary pressure per step in the H5
+  configuration; then add the identity `raise_boundary_caution`.
+
+**H15. At small bridge scales, the novelty of good outcomes holds Securing down.** (family 1)
+- Observation that prompted it: at the demo's calibrated scales (payoff 0.010,
+  motive 0.036), Good outcomes did not saturate in 20 steps and Threat then
+  recovery recovered, unlike every other configuration of the baseline.
+- Statement: the appraisal's `-0.30 * benign_novelty` term is the only one
+  strong enough to offset the per-step caution increment, and small scales
+  make good outcomes highly novel.
+- Prediction: True if, at the demo's scales with novelty forced to 0 in the
+  stimulus, Good outcomes saturate within 20 steps. False if they still never
+  saturate in 20 steps.
+- Experiment: at the demo's scales, wrap the bridge's stimulus builder to set
+  novelty to 0; nothing else changed.
