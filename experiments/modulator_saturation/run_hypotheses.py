@@ -228,6 +228,38 @@ def main() -> None:
     # H12: MetaMo's own grid-world loop
     gridworld_section()
 
+    # H14: the residual drift once the projection's increment is removed
+    h5_swaps = [s for hid, _, s, _ in EXPERIMENTS if hid == "H5"][0]
+    print("\n### H14: the safety boundary in the H5 configuration\n")
+    with patched(*h5_swaps):
+        zero = SCENARIOS[0]
+        rows = run_bridge(zero, 50)
+    first_06 = next((r["t"] for r in rows[1:] if r["securing"] > 0.60), None)
+    first_p = next((r["t"] for r in rows[1:] if r["pressure"] > 0.0), None)
+    print(f"- Zero, 50 steps, H5 configuration: first step with boundary pressure > 0: {fmt_first(first_p)}; "
+          f"first step with Securing > 0.60: {fmt_first(first_06)}")
+    print("| Step | Goal norm | Boundary pressure | Securing | Lax ok | Contractive ok |")
+    print("|---|---|---|---|---|---|")
+    for r in rows[1:]:
+        if r["t"] % 5 == 4 or r["t"] in (first_p, first_06):
+            print(f"| {r['t']} | {np.linalg.norm(r['G']):.3f} | {r['pressure']:.3f} | {r['securing']:.3f} | "
+                  f"{r['lax_ok']} | {r['contractive_ok']} |")
+    h14 = all_scenarios(h5_swaps + [(bimonad_mod, "raise_boundary_caution", lambda st: st)], {})
+    print_table("H14: H5 configuration plus boundary caution disabled", h14)
+
+    # H15: at the demo's scales, remove the novelty of the stimulus
+    from common import governor_mod
+    original_builder = governor_mod.build_stimulus_values
+
+    def no_novelty(*a, **k):
+        v = original_builder(*a, **k)
+        return type(v)(novelty=0.0, conduciveness=v.conduciveness, risk=v.risk, effort=v.effort)
+
+    h15 = all_scenarios([(governor_mod, "build_stimulus_values", no_novelty)],
+                        {"payoff_scale": 0.010, "motive_scale": 0.036})
+    print_table("H15: demo scales with novelty forced to 0", h15)
+    print(f"\nFirst saturated step, demo scales -> H15: {shift_line(first_shift(demo, h15))}")
+
     # H13: what the bridge reads
     print("\n### H13: all six modulators and the emitted budgets, Threat then recovery (50 steps, baseline)\n")
     rs = base[("Threat then recovery", 50)]["rows"]
